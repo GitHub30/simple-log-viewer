@@ -6,9 +6,17 @@ header('Access-Control-Allow-Methods: *');
 header('Access-Control-Allow-Headers: *');
 header('Access-Control-Max-Age: 86400');
 
-$filepaths = array_filter(explode(',', $_GET['files']));
+$filepath = $_GET['filepath'];
+$filepaths = array_filter(explode(',', $_GET['filepaths']));
 
-if ($filepaths) {
+if ($filepath) {
+    if (file_exists($filepath)) {
+        header('Content-Type: text/plain');
+        echo file_get_contents($filepath);
+    } else {
+        http_response_code(404);
+    }
+} else if ($filepaths) {
     if (!is_dir('priv')) {
         mkdir('priv');
     }
