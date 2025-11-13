@@ -6,13 +6,23 @@ header('Access-Control-Allow-Methods: *');
 header('Access-Control-Allow-Headers: *');
 header('Access-Control-Max-Age: 86400');
 
-$filepath = $_GET['filepath'];
 $filepaths = array_filter(explode(',', $_GET['filepaths']));
 
-if ($filepath) {
-    if (file_exists($filepath)) {
+if ($_GET['find_log_files']) {
+    // find . -name '*.log' in PHP
+    $filepaths = [];
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('.'));
+    foreach ($iterator as $file) {
+        if ($file->isFile() && preg_match('/\.log$/', $file->getFilename())) {
+            $filepaths[] = $file->getPathname();
+        }
+    }
+    header('Content-Type: application/json');
+    echo json_encode($filepaths, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+} else if ($_GET['filepath']) {
+    if (file_exists($_GET['filepath'])) {
         header('Content-Type: text/plain');
-        echo file_get_contents($filepath);
+        echo file_get_contents($_GET['filepath']);
     } else {
         http_response_code(404);
     }
