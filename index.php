@@ -9,7 +9,6 @@ header('Access-Control-Max-Age: 86400');
 $filepaths = array_filter(explode(',', $_GET['filepaths']));
 
 if ($_GET['find_log_files']) {
-    // find . -name '*.log' in PHP
     $filepaths = [];
     $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('.'));
     foreach ($iterator as $file) {
