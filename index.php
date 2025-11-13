@@ -1,0 +1,38 @@
+<?php
+
+$filepaths = array_filter(explode(',', $_GET['files']));
+
+if ($filepaths) {
+    if (!is_dir('priv')) {
+        mkdir('priv');
+    }
+
+    $result = [];
+    foreach ($filepaths as $filepath) {
+        $prev_filepath = 'priv/' . md5($filepath);
+        if (file_exists($prev_filepath)) {
+            $filesize = filesize($filepath);
+            $priv_filesize = filesize($prev_filepath);
+            if ($filesize !== $priv_filesize) {
+                copy($filepath, $prev_filepath);
+                $result[] = [
+                    'filepath' => $filepath,
+                    'contents' => substr(file_get_contents($filepath), $priv_filesize),
+                    'modified_time' => filemtime($filepath)
+                ];
+            }
+        } else if (file_exists($filepath)) {
+            copy($filepath, $prev_filepath);
+            $result[] = [
+                'filepath' => $filepath,
+                'contents' => file_get_contents($filepath),
+                'modified_time' => filemtime($filepath)
+            ];
+        }
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+} else {
+    
+}
